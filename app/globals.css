@@ -1,3 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* ===== TABLE UPGRADE ===== */
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* header */
+th {
+  background: #0984e3;
+  color: white;
+  padding: 12px;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+/* cell */
+td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+/* zebra row */
+tr:nth-child(even) {
+  background: #f9fbfd;
+}
+
+/* hover */
+tr:hover {
+  background: #dfe6e9;
+  transition: 0.2s;
+}
+
+/* id column เล็กลง */
+td:first-child,
+th:first-child {
+  width: 80px;
+}
+
+/* center text */
+td, th {
+  text-align: center;
+}

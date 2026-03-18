@@ -1,35 +1,79 @@
-import { getOrders } from "@/lib/api";
+"use client";
 
-export default async function OrdersPage() {
-  const orders = await getOrders();
+import { useEffect, useState } from "react";
+import { getOrders, createOrder } from "@/lib/api";
+
+export default function OrdersPage() {
+  const [orders, setOrders] = useState([]);
+  const [customerId, setCustomerId] = useState("");
+  const [productId, setProductId] = useState("");
+  const [quantity, setQuantity] = useState("");
+
+  const loadData = async () => {
+    const data = await getOrders();
+    setOrders(data);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleAdd = async () => {
+    if (!customerId || !productId || !quantity) return;
+
+    await createOrder({
+      customer_id: Number(customerId),
+      product_id: Number(productId),
+      quantity: Number(quantity),
+    });
+
+    setCustomerId("");
+    setProductId("");
+    setQuantity("");
+    loadData();
+  };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Orders</h1>
+    <div className="container">
+      <h1>Orders</h1>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden border">
-        <table className="w-full text-sm text-left">
+      <input
+        placeholder="Customer ID"
+        value={customerId}
+        onChange={(e) => setCustomerId(e.target.value)}
+      />
+      <input
+        placeholder="Product ID"
+        value={productId}
+        onChange={(e) => setProductId(e.target.value)}
+      />
+      <input
+        placeholder="Quantity"
+        value={quantity}
+        onChange={(e) => setQuantity(e.target.value)}
+      />
+      <button onClick={handleAdd}>Add</button>
 
-          <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Customer ID</th>
-              <th className="px-4 py-3">Total</th>
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>customer_id</th>
+            <th>product_id</th>
+            <th>quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map((o: any) => (
+            <tr key={o.id}>
+              <td>{o.id}</td>
+              <td>{o.customer_id}</td>
+              <td>{o.product_id}</td>
+              <td>{o.quantity}</td>
             </tr>
-          </thead>
-
-          <tbody>
-            {orders.map((o: any) => (
-              <tr key={o.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-800">{o.id}</td>
-                <td className="px-4 py-3 text-gray-800">{o.customerId}</td>
-                <td className="px-4 py-3 text-gray-800">{o.total}</td>
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

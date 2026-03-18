@@ -1,41 +1,65 @@
-import { getCustomers } from "@/lib/api";
+"use client";
 
-export default async function CustomersPage() {
-  const customers = await getCustomers();
+import { useEffect, useState } from "react";
+import { getCustomers, createCustomer } from "@/lib/api";
+
+export default function Customers() {
+  const [customers, setCustomers] = useState([]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  const loadData = async () => {
+    const data = await getCustomers();
+    setCustomers(data);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleAdd = async () => {
+    if (!name || !email) return;
+
+    await createCustomer({ name, email });
+    setName("");
+    setEmail("");
+    loadData();
+  };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Customers</h1>
+    <div className="container">
+      <h1>Customers</h1>
 
-      {/* ✅ ทำ table ให้ขาว อ่านง่าย */}
-      <div className="bg-white shadow rounded-lg overflow-hidden border">
-        <table className="w-full text-sm text-left">
+      <input
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <button onClick={handleAdd}>Add</button>
 
-          {/* header */}
-          <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Email</th>
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map((c: any) => (
+            <tr key={c.id}>
+              <td>{c.id}</td>
+              <td>{c.name}</td>
+              <td>{c.email}</td>
             </tr>
-          </thead>
-
-          {/* body */}
-          <tbody>
-            {customers.map((c: any) => (
-              <tr
-                key={c.id}
-                className="border-t hover:bg-gray-50 transition"
-              >
-                <td className="px-4 py-3 text-gray-800">{c.id}</td>
-                <td className="px-4 py-3 text-gray-800">{c.name}</td>
-                <td className="px-4 py-3 text-gray-800">{c.email}</td>
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

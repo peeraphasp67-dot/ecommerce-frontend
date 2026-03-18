@@ -1,35 +1,79 @@
-import { getProducts } from "@/lib/api";
+"use client";
 
-export default async function ProductsPage() {
-  const products = await getProducts();
+import { useEffect, useState } from "react";
+import { getProducts, createProduct } from "@/lib/api";
+
+export default function ProductsPage() {
+  const [products, setProducts] = useState([]);
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
+
+  const loadData = async () => {
+    const data = await getProducts();
+    setProducts(data);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleAdd = async () => {
+    if (!name || !price || !stock) return;
+
+    await createProduct({
+      name,
+      price: Number(price),
+      stock: Number(stock),
+    });
+
+    setName("");
+    setPrice("");
+    setStock("");
+    loadData();
+  };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Products</h1>
+    <div className="container">
+      <h1>Products</h1>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden border">
-        <table className="w-full text-sm text-left">
+      <input
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        placeholder="Price"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+      <input
+        placeholder="Stock"
+        value={stock}
+        onChange={(e) => setStock(e.target.value)}
+      />
+      <button onClick={handleAdd}>Add</button>
 
-          <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-            <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Price</th>
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>price</th>
+            <th>stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p: any) => (
+            <tr key={p.id}>
+              <td>{p.id}</td>
+              <td>{p.name}</td>
+              <td>{p.price}</td>
+              <td>{p.stock}</td>
             </tr>
-          </thead>
-
-          <tbody>
-            {products.map((p: any) => (
-              <tr key={p.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-800">{p.id}</td>
-                <td className="px-4 py-3 text-gray-800">{p.name}</td>
-                <td className="px-4 py-3 text-gray-800">{p.price}</td>
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
